@@ -1,5 +1,5 @@
-FROM eclipse-temurin:17-jdk-alpine
+FROM openjdk:11-jdk-slim
 VOLUME /tmp
-COPY target/*.jar app.jar
-EXPOSE 9098
-ENTRYPOINT ["java","-jar","app.jar"]
+ARG JAR_FILE
+COPY target/*.jar SkiStationProject-0.0.1-SNAPSHOT.jar
+ENTRYPOINT ["java","-jar","SkiStationProject-0.0.1-SNAPSHOT.jar"]
