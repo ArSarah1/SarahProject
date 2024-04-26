@@ -1,68 +1,14 @@
-// pipeline {
-//    agent { label 'agent1' }
-//     stages {
-//         stage('Checkout') {
-//             steps {
-//                 echo "Getting Project from Git"
-//                 git branch: "main",
-//                     url: "https://github.com/amanibhr/deployApp.git"
-//             }
-//         }
-//         stage('coverage test') {
-//             steps {
-//                 script {
-//                     sh 'mvn clean test -P test jacoco:report'
-//                 }
-//             }
-//             }
-//         stage('SonarQube analysis') {
-//             steps {
-//                 script {
-//                     sh 'mvn compile sonar:sonar -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=deployapp -Dsonar.projectKey=deployapp_newdeployapp -Dsonar.login=8578ac26a6e0c5334ec207b57b139ae14b56e9d4 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
-//                 }
-//             }
-//         }
-        
-//         stage('Build Artifact') {
-//             steps {
-//                 sh 'mvn package -DskipTests'
-//             }
-//         }
-//         stage('Deploy Artifact') {
-//             steps {
-//                 sh 'mvn deploy -DskipTests' 
-//             }
-//         }
-//         stage('Build Docker image') {
-//             steps {
-//                 script {
-//                     sh 'docker build -t app-container .'
-//                 }
-//             }
-//         }
-//         stage('Run Docker image with docker compose') {
-//             steps {
-//                 script {
-//                      sh 'docker-compose up --build -d'
-//                 }
-//             }
-//         }
-//     }
-//     post {
-//         always {
-//             cleanWs()
-//         }
-//     }
-// }
-
 pipeline {
     agent { label 'agent1' }
     stages {
-        stage('Checkout') {
+        stage('Hello') {
             steps {
-                echo "Getting Project from Git"
-                git branch: "main",
-                    url: "https://github.com/amanibhr/deployApp.git"
+                echo 'Hello World'
+            }
+        }
+        stage('Maven') {
+            steps {
+                sh 'mvn --version'
             }
         }
         stage('Coverage Test') {
@@ -75,77 +21,8 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    sh 'mvn compile sonar:sonar -Dsonar.host.url=https://sonarcloud.io/ -Dsonar.organization=deployapp -Dsonar.projectKey=deployapp_newdeployapp -Dsonar.login=8578ac26a6e0c5334ec207b57b139ae14b56e9d4 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
+                    sh 'mvn compile sonar:sonar -Dsonar.host.url=http://172.22.202.160:9000/ -Dsonar.organization=Devops -Dsonar.projectKey=DevopsProject -Dsonar.login=a7476c88f53a162a82d8149b0052207b97b69587 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml'
                 }
-            }
-        }
-        stage('Build Artifact') {
-            steps {
-                sh 'mvn package -DskipTests'
-            }
-        }
-        stage('Deploy Artifact to Dev') {
-            environment {
-                SPRING_PROFILES_ACTIVE = 'dev'
-            }
-            steps {
-                sh 'mvn deploy -DskipTests' 
-            }
-        }
-        stage('Deploy Artifact to Test') {
-            environment {
-                SPRING_PROFILES_ACTIVE = 'test'
-            }
-            steps {
-                sh 'mvn deploy -DskipTests' 
-            }
-        }
-        stage('Deploy Artifact to Prod') {
-            environment {
-                SPRING_PROFILES_ACTIVE = 'prod'
-            }
-            steps {
-                sh 'mvn deploy -DskipTests' 
-            }
-        }
-    stage('Build Docker Image') {
-        steps {
-            script {
-                // Build the Docker image
-                sh 'docker build -t app-container .'
-                
-                // Log in to the Docker registry
-                sh 'echo "mypassword" | docker login -u "admin" --password-stdin http://172.24.162.10:8081'
-                
-                // Tag the Docker image
-                sh 'docker tag app-container http://172.24.162.10:8081/repository/application-image/pipelineproject-app:1'
-                
-                // Push the Docker image to the registry
-                sh 'docker push http://172.24.162.10:8081/repository/application-image/pipelineproject-app:1'
-            }
-        }
-    }
-        stage('Run Docker Image with Docker Compose') {
-            steps {
-                script {
-                    sh 'docker-compose up --build -d'
-                }
-            }
-        }
-    }
-    post {
-        always {
-            script {
-                // Set the system property
-                env.JAVA_OPTS = "-Dhudson.tasks.MailSender.SEND_TO_UNKNOWN_USERS=true"
-                
-                // Define valid recipients
-                def recipients = ['amani.bouhrira@espirt.tn', 'amani.bouhrira@esen.tn']
-                
-                // Send email using emailext plugin
-                emailext body: 'A Test EMail', 
-                         to: recipients.join(','),
-                         subject: 'Test'
             }
         }
     }
