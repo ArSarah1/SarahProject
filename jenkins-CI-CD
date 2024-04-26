@@ -31,6 +31,12 @@ pipeline {
                     '''
                 }
             }
-        }
+        }   
+    }
+    post {
+        success {
+            emailext subject: 'Build Success Notification',
+                      body: 'Your Jenkins build succeeded. Congratulations!',
+                      to: 'hachich.ayed2000@gmail.com'
     }
 }
